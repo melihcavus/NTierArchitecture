@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 
 namespace NTierArchitecture.Entities.Models
 {
-    public sealed class Category : AbstractEntity
+    public sealed class Order : AbstractEntity
     {
-        public string Name { get; set; } = default!;
+        public DateTimeOffset OrderDate { get; set; }
+        public Guid ProductId { get; set; }
+        public int Quantity { get; set; }
     }
 }
