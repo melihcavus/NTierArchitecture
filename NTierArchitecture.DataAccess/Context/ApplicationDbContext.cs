@@ -41,7 +41,7 @@ namespace NTierArchitecture.DataAccess.Context
                         .CurrentValue = DateTimeOffset.UtcNow;
                 }
                 else if (entry.State == EntityState.Deleted)
-                {
+                    {
                     if (!entry.Property(p => p.IsDeleted).CurrentValue)
                     {
                         entry.Property(p => p.IsDeleted)

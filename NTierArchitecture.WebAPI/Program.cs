@@ -1,5 +1,7 @@
+using Carter;
 using NTierArchitecture.Business;
 using NTierArchitecture.DataAccess;
+using Scalar.AspNetCore;
 
 namespace NTierArchitecture.WebAPI
 {
@@ -11,10 +13,14 @@ namespace NTierArchitecture.WebAPI
 
             builder.Services.AddDataAccess(builder.Configuration);
             builder.Services.AddBusiness();
-
+            builder.Services.AddCarter();
+            builder.Services.AddOpenApi();
 
             var app = builder.Build();
-
+            
+            app.MapOpenApi();
+            app.MapScalarApiReference();
+            app.MapCarter();
             app.Run();
         }
     }
