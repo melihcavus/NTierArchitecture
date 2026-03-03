@@ -2,6 +2,7 @@
 using NTierArchitecture.Business.Services;
 using NTierArchitecture.Entities.DTOs;
 using NTierArchitecture.Entities.Models;
+using NTierArchitecture.WebAPI.Fliters;
 
 namespace NTierArchitecture.WebAPI.Modules
 {
@@ -18,7 +19,7 @@ namespace NTierArchitecture.WebAPI.Modules
             {
                 await service.CreateProduct(request, cancellationToken);
                 return Results.Created();
-            });
+            }).AddEndpointFilter<ValidationFilter<ProductCreateDTO>>(); 
 
             app.MapGet("/{id}", async (
                 Guid id,
@@ -44,7 +45,7 @@ namespace NTierArchitecture.WebAPI.Modules
             {
                 await service.UpdateAsync(request,cancellationToken);
                 return Results.Ok();
-            });
+            }).AddEndpointFilter<ValidationFilter<ProductUpdateDTO>>(); 
 
             app.MapDelete("/{id}", async (
                 Guid id,
@@ -58,3 +59,4 @@ namespace NTierArchitecture.WebAPI.Modules
         }
     }
 }
+

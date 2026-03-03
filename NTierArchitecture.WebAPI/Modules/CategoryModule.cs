@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using NTierArchitecture.Business.Services;
 using NTierArchitecture.Entities.DTOs;
 using NTierArchitecture.Entities.Models;
+using NTierArchitecture.WebAPI.Fliters;
 using System.Text.RegularExpressions;
 
 namespace NTierArchitecture.WebAPI.Modules
@@ -20,7 +21,7 @@ namespace NTierArchitecture.WebAPI.Modules
             {
                 await service.CreateAsync(request, cancellationToken);
                 return Results.Created();
-            });
+            }).AddEndpointFilter<ValidationFilter<CategoryCreateDTO>>();
 
             app.MapGet("/{id}", async (
                 Guid id,
@@ -46,7 +47,7 @@ namespace NTierArchitecture.WebAPI.Modules
             {
                 await service.UpdateAsync(request, cancellationToken);
                 return Results.Created();
-            });
+            }).AddEndpointFilter<ValidationFilter<CategoryUpdateDTO>>(); 
 
             app.MapDelete("/{id}", async (
                 Guid id,
