@@ -15,11 +15,13 @@ namespace NTierArchitecture.WebAPI
             builder.Services.AddBusiness();
             builder.Services.AddCarter();
             builder.Services.AddOpenApi();
+            builder.Services.AddExceptionHandler<ExceptionHandler>().AddProblemDetails();
 
             var app = builder.Build();
             
             app.MapOpenApi();
             app.MapScalarApiReference();
+            app.UseExceptionHandler();
             app.MapCarter();
             app.Run();
         }

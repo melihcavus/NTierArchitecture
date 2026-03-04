@@ -4,7 +4,7 @@ using Microsoft.Identity.Client;
 
 namespace NTierArchitecture.WebAPI.Fliters
 {
-    public class ValidationFilter<T> : IEndpointFilter
+    public partial class ValidationFilter<T> : IEndpointFilter
     {
         public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
         {
@@ -20,9 +20,21 @@ namespace NTierArchitecture.WebAPI.Fliters
             {
                 var errors = result.Errors.GroupBy(e => e.PropertyName)
                     .ToDictionary(g => g.Key, g => g.Select(e => e.ErrorMessage).ToArray());
-                return Results.ValidationProblem(errors);
+
+                throw new ValidationExceptionEx(errors);
             }
             return await next(context);
+        }
+    }
+
+    public sealed class ValidationExceptionEx : Exception
+    {
+        public IDictionary<string, string[]> Errors { get; }
+
+        public ValidationExceptionEx(IDictionary<string, string[]> errors)
+            : base("Validation failed")
+        {
+            Errors = errors;
         }
     }
 }
