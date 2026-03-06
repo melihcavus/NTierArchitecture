@@ -7,12 +7,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TS.Result;
 
 namespace NTierArchitecture.Business.Services
 {
     public sealed class OrderService(ApplicationDbContext dbContext)
     {
-        public async Task CreateAsync(
+        public async Task<Result<string>> CreateAsync(
             OrderCreateDTO request, CancellationToken cancellationToken)
         {
 
@@ -24,10 +25,11 @@ namespace NTierArchitecture.Business.Services
             };
 
             dbContext.Orders.Add(order);
-            await dbContext.SaveChangesAsync(cancellationToken);
+            var res = await dbContext.SaveChangesAsync(cancellationToken);
+            return "Sipariş başarıyla oluşturuldu.";
         }
 
-        public async Task<Order> GetAsync(Guid id, CancellationToken cancellationToken)
+        public async Task<Result<Order>> GetAsync(Guid id, CancellationToken cancellationToken)
         {
             Order? order = await dbContext.Orders.FindAsync(id, cancellationToken);
             if (order == null)
@@ -37,14 +39,14 @@ namespace NTierArchitecture.Business.Services
             return order;
         }
 
-        public async Task<List<Order>> GetAllAsync(CancellationToken cancellationToken)
+        public async Task<Result<List<Order>>> GetAllAsync(CancellationToken cancellationToken)
         {
             var Orders = await dbContext.Orders
                 .ToListAsync(cancellationToken);
             return Orders;
         }
 
-        public async Task UpdateAsync(OrderUpdateDTO request, CancellationToken cancellationToken = default)
+        public async Task<Result<string>> UpdateAsync(OrderUpdateDTO request, CancellationToken cancellationToken = default)
         {
             Order? Order = await dbContext.Orders.FindAsync(request.Id, cancellationToken);
 
@@ -57,10 +59,11 @@ namespace NTierArchitecture.Business.Services
             Order.Quantity = request.Quantity;
             dbContext.Orders.Update(Order);
             await dbContext.SaveChangesAsync(cancellationToken);
+            return "Sipariş başarıyla güncellendi.";
 
         }
 
-        public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<Result<string>> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
         {
             Order? Order = await dbContext.Orders.FindAsync(id, cancellationToken);
             if (Order == null)
@@ -69,6 +72,7 @@ namespace NTierArchitecture.Business.Services
             }
             dbContext.Orders.Remove(Order);
             await dbContext.SaveChangesAsync(cancellationToken);
+            return "Sipariş başarıyla silindi.";
         }
     }
 }

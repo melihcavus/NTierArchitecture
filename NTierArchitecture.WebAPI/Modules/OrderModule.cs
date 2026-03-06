@@ -17,8 +17,8 @@ namespace NTierArchitecture.WebAPI.Modules
                 OrderService service,
                 CancellationToken cancellationToken) =>
             {
-                await service.CreateAsync(request, cancellationToken);
-                return Results.Created();
+                var res = await service.CreateAsync(request, cancellationToken);
+                return Results.Ok(res);
             }).AddEndpointFilter<ValidationFilter<OrderCreateDTO>>(); 
 
             app.MapGet("/{id}", async (
@@ -43,8 +43,8 @@ namespace NTierArchitecture.WebAPI.Modules
                 OrderService service,
                 CancellationToken cancellationToken) =>
             {
-                await service.UpdateAsync(request, cancellationToken);
-                return Results.Ok();
+                var res = await service.UpdateAsync(request, cancellationToken);
+                return Results.Ok(res);
             }).AddEndpointFilter<ValidationFilter<OrderUpdateDTO>>();
 
             app.MapDelete("/{id}", async (
@@ -52,8 +52,8 @@ namespace NTierArchitecture.WebAPI.Modules
                OrderService service,
                CancellationToken cancellationToken) =>
             {
-                await service.DeleteAsync(id, cancellationToken);
-                return Results.Ok();
+                var res = await service.DeleteAsync(id, cancellationToken);
+                return Results.Ok(res);
             });
         }
     }

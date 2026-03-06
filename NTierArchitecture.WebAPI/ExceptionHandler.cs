@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using NTierArchitecture.WebAPI.Fliters;
+using TS.Result;
 
 
 namespace NTierArchitecture.WebAPI
@@ -10,16 +11,15 @@ namespace NTierArchitecture.WebAPI
         {
             if (exception is ValidationExceptionEx validationException)
             {
-                var errors = validationException.Errors.SelectMany(s => s.Value).ToList();
+                var errors =Result<string>.Failure(validationException.Errors.SelectMany(s => s.Value).ToList());
                 httpContext.Response.StatusCode = 422;
                 await httpContext.Response.WriteAsJsonAsync(errors);
                 return true;
             }
-
-            string message = exception.Message;
+            var res = Result<string>.Failure(exception.Message);
             httpContext.Response.StatusCode = 500;
-            await httpContext.Response.WriteAsJsonAsync(new { Message = message });
 
+            await httpContext.Response.WriteAsJsonAsync(res);
             return true;
         }
     }

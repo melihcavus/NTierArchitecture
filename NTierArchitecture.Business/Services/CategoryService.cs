@@ -8,12 +8,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Azure.Core;
 using NTierArchitecture.Entities.Models;
+using TS.Result;
 
 namespace NTierArchitecture.Business.Services
 {
     public sealed class CategoryService(ApplicationDbContext dbContext)
     {
-        public async Task CreateAsync(
+        public async Task<Result<string>> CreateAsync(
             CategoryCreateDTO request,CancellationToken cancellationToken)
         {
             bool isNameExist = await dbContext.Categories.AnyAsync(p => p.Name == request.Name, cancellationToken);
@@ -30,9 +31,11 @@ namespace NTierArchitecture.Business.Services
 
             dbContext.Categories.Add(category);
             await dbContext.SaveChangesAsync(cancellationToken);
+
+            return "Kategori başarıyla oluşturuldu";
         }
 
-        public async Task<Category> GetAsync(Guid id,CancellationToken cancellationToken)
+        public async Task<Result<Category>> GetAsync(Guid id,CancellationToken cancellationToken)
         {
             Category? category = await dbContext.Categories.FindAsync(id, cancellationToken);
             if (category == null)
@@ -43,7 +46,7 @@ namespace NTierArchitecture.Business.Services
         }
 
         //HttpGet neden kullanmadık?
-        public async Task<List<Category>> GetAllAsync(CancellationToken cancellationToken)
+        public async Task<Result<List<Category>>> GetAllAsync(CancellationToken cancellationToken)
         {
             var categories = await dbContext.Categories
                 .OrderBy(p=> p.Name)
@@ -51,7 +54,7 @@ namespace NTierArchitecture.Business.Services
             return categories;
         }
 
-        public async Task UpdateAsync(CategoryUpdateDTO request,CancellationToken cancellationToken = default)
+        public async Task<Result<string>>UpdateAsync(CategoryUpdateDTO request,CancellationToken cancellationToken = default)
         {
             Category? category = await dbContext.Categories.FindAsync(request.Id,cancellationToken);
 
@@ -72,9 +75,10 @@ namespace NTierArchitecture.Business.Services
                 dbContext.Categories.Update(category);
                 await dbContext.SaveChangesAsync(cancellationToken);
             }
+            return "Kategori başarıyla güncellendi";
         }
 
-        public async Task DeleteAsync(Guid id,CancellationToken cancellationToken = default)
+        public async Task<Result<string>> DeleteAsync(Guid id,CancellationToken cancellationToken = default)
         {
             Category? category = await dbContext.Categories.FindAsync(id, cancellationToken);
             if (category == null)
@@ -83,6 +87,7 @@ namespace NTierArchitecture.Business.Services
             }
             dbContext.Categories.Remove(category);
             await dbContext.SaveChangesAsync(cancellationToken);
+            return "Kategori başarıyla silindi";
         }
     }
 }

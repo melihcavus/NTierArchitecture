@@ -19,8 +19,8 @@ namespace NTierArchitecture.WebAPI.Modules
                 CategoryService service,
                 CancellationToken cancellationToken) =>
             {
-                await service.CreateAsync(request, cancellationToken);
-                return Results.Created();
+                var res = await service.CreateAsync(request, cancellationToken);
+                return Results.Ok(res);
             }).AddEndpointFilter<ValidationFilter<CategoryCreateDTO>>();
 
             app.MapGet("/{id}", async (
