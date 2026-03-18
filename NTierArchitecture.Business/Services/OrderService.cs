@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Mapster;
+using Microsoft.EntityFrameworkCore;
 using NTierArchitecture.DataAccess.Context;
 using NTierArchitecture.Entities.DTOs;
 using NTierArchitecture.Entities.Models;
@@ -17,12 +18,7 @@ namespace NTierArchitecture.Business.Services
             OrderCreateDTO request, CancellationToken cancellationToken)
         {
 
-            Order order = new()
-            {
-                ProductId = request.ProductId,
-                Quantity = request.Quantity,
-                OrderDate = DateTimeOffset.UtcNow
-            };
+            Order order = request.Adapt<Order>();   
 
             dbContext.Orders.Add(order);
             var res = await dbContext.SaveChangesAsync(cancellationToken);
@@ -55,8 +51,7 @@ namespace NTierArchitecture.Business.Services
                 throw new ArgumentException("Veri bulunamadı");
             }
 
-            Order.ProductId = request.ProductId;
-            Order.Quantity = request.Quantity;
+           request.Adapt(Order);
             dbContext.Orders.Update(Order);
             await dbContext.SaveChangesAsync(cancellationToken);
             return "Sipariş başarıyla güncellendi.";

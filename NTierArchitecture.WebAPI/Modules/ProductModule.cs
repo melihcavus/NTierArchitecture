@@ -31,10 +31,12 @@ namespace NTierArchitecture.WebAPI.Modules
             }).Produces<Product>();
 
             app.MapGet(string.Empty, async (
+                int pageNumber,
+                int pageSize,
                 ProductService service,
                 CancellationToken cancellationToken) =>
             {
-                var res = await service.GetAllAsync(cancellationToken);
+                var res = await service.GetAllAsync(pageNumber, pageSize, cancellationToken );
                 return Results.Ok(res);
             }).Produces<List<Product>>();
 

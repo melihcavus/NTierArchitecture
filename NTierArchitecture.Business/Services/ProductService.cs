@@ -1,4 +1,5 @@
 ﻿using Azure.Core;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
 using NTierArchitecture.DataAccess.Context;
 using NTierArchitecture.Entities.DTOs;
@@ -24,12 +25,7 @@ namespace NTierArchitecture.Business.Services
             }
 
 
-            Product product = new()
-            {
-                Name = request.Name,
-                UnitPrice = request.UnitPrice,
-                CategoryId = request.CategoryId 
-            };
+            Product product = request.Adapt<Product>();
 
             dbContext.Products.Add(product);
             dbContext.SaveChanges();    
@@ -38,7 +34,8 @@ namespace NTierArchitecture.Business.Services
 
         public async Task<Result<Product>> GetAsync(Guid id,CancellationToken cancellationToken)
         {
-            Product? product = await dbContext.Products.FindAsync(id, cancellationToken);
+            Product? product = await dbContext.Products.
+                FindAsync(id, cancellationToken);
 
             if (product == null) 
             {
@@ -47,10 +44,12 @@ namespace NTierArchitecture.Business.Services
             return product;
         }
 
-        public async Task<Result<List<Product>>> GetAllAsync(CancellationToken cancellationToken) 
+        public async Task<Result<List<Product>>> GetAllAsync(int pageNumber, int pageSize,CancellationToken cancellationToken) 
         {
             var products = await dbContext.Products
                 .OrderBy(p => p.Name)
+                .Skip(pageSize * (pageNumber -1))
+                .Take(pageSize)
                 .ToListAsync(cancellationToken);
             return products;
         }
@@ -70,9 +69,7 @@ namespace NTierArchitecture.Business.Services
                 {
                     throw new ArgumentException("Bu ad daha önce kullanılmış");
                 }
-                product.Name = request.Name;
-                product.UnitPrice = request.UnitPrice;
-                product.CategoryId = request.CategoryId;
+                request.Adapt(product);
                 dbContext.Products.Update(product);
                 await dbContext.SaveChangesAsync(cancellationToken);
             }

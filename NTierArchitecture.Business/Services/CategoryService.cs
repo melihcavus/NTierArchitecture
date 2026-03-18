@@ -9,10 +9,14 @@ using System.Threading.Tasks;
 using Azure.Core;
 using NTierArchitecture.Entities.Models;
 using TS.Result;
+using Mapster;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace NTierArchitecture.Business.Services
 {
-    public sealed class CategoryService(ApplicationDbContext dbContext)
+    public sealed class CategoryService(
+        ApplicationDbContext dbContext,
+        IMemoryCache memoryCache)
     {
         public async Task<Result<string>> CreateAsync(
             CategoryCreateDTO request,CancellationToken cancellationToken)
@@ -24,13 +28,12 @@ namespace NTierArchitecture.Business.Services
                 throw new ArgumentException("Bu ad daha önce kullanılmış");
             }
 
-            Category category = new()
-            {
-                Name = request.Name
-            };
+            Category category = request.Adapt<Category>();
 
             dbContext.Categories.Add(category);
             await dbContext.SaveChangesAsync(cancellationToken);
+            memoryCache.Remove("categories");
+
 
             return "Kategori başarıyla oluşturuldu";
         }
@@ -48,10 +51,16 @@ namespace NTierArchitecture.Business.Services
         //HttpGet neden kullanmadık?
         public async Task<Result<List<Category>>> GetAllAsync(CancellationToken cancellationToken)
         {
-            var categories = await dbContext.Categories
+            var categories = memoryCache.Get<List<Category>>("categories");
+            if (categories is null)
+            {
+             categories = await dbContext.Categories
                 .OrderBy(p=> p.Name)
                 .ToListAsync(cancellationToken);
+                memoryCache.Set("categories", categories);
+            }
             return categories;
+
         }
 
         public async Task<Result<string>>UpdateAsync(CategoryUpdateDTO request,CancellationToken cancellationToken = default)
@@ -71,9 +80,11 @@ namespace NTierArchitecture.Business.Services
                 {
                     throw new ArgumentException("Bu ad daha önce kullanılmış");
                 }
-                category.Name = request.Name;
+                request.Adapt(category);
                 dbContext.Categories.Update(category);
                 await dbContext.SaveChangesAsync(cancellationToken);
+                memoryCache.Remove("categories");
+
             }
             return "Kategori başarıyla güncellendi";
         }
@@ -87,6 +98,7 @@ namespace NTierArchitecture.Business.Services
             }
             dbContext.Categories.Remove(category);
             await dbContext.SaveChangesAsync(cancellationToken);
+            memoryCache.Remove("categories");
             return "Kategori başarıyla silindi";
         }
     }
